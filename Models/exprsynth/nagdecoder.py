@@ -1363,6 +1363,7 @@ class NAGDecoder(object):
     # ---------- Test-time code ----------
     def generate_suggestions_for_one_sample(self,
                                             test_sample: Dict[str, Any],
+                                            raw_sample,
                                             initial_eg_node_representations: tf.Tensor,
                                             beam_size: int=3,
                                             max_decoding_steps: int=100,
@@ -1637,6 +1638,9 @@ class NAGDecoder(object):
                          for new_beam in expand_node(beam)]
             beams = sorted(new_beams, key=lambda b: -b.expansion_logprob[0])[:beam_size]  # Pick top K beams
 
+        self.test_log(raw_sample["Filename"])
+        self.test_log(raw_sample['HoleSpan'] + " " +  raw_sample['HoleLineSpan'])
+        self.test_log(str(raw_sample['HoleTokensBefore']) + " " + str(raw_sample['HoleTokensAfter']))
         self.test_log("Groundtruth: %s" % (" ".join(test_sample['eg_tokens']),))
 
         all_predictions = []  # type: List[Tuple[List[str], float]]

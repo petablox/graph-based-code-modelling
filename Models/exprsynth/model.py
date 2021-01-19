@@ -637,11 +637,13 @@ class Model(ABC):
                 if context_encoding is None:  # TODO: Hack that should go away
                     test_result = self._decoder_model.generate_suggestions_for_one_sample(
                         loaded_test_sample,
+                        raw_sample,
                         test_sample_encoding,
                         beam_size=beam_size)  # type: ModelTestResult
                 else:
                     test_result = self._decoder_model.generate_suggestions_for_one_sample(
                         loaded_test_sample,
+                        raw_sample,
                         test_sample_encoding,
                         beam_size=beam_size,
                         context_tokens=loaded_test_sample.get('context_nonkeyword_tokens'),
