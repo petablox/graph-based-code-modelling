@@ -12,6 +12,7 @@ Options:
 import os
 import sys
 import time
+import numpy as np 
 from typing import Any, Dict, List, Tuple
 from multiprocessing import Pool
 
@@ -63,7 +64,13 @@ def test_on_raw_chunks(model_path: RichPath,
                "correct_at_5": 0,
                "token_perplexities": []}
 
+    out_results = {}
+    out_results_5 = {}
+
     def per_result_callback(sample_idx, token_perplexity, raw_sample, sample_result):
+        out_results[sample_idx] = 0
+        out_results_5[sample_idx] = 0
+
         predictions = sample_result.all_predictions
         results["token_perplexities"].append(token_perplexity)
         if len(predictions) == 0:
@@ -71,8 +78,10 @@ def test_on_raw_chunks(model_path: RichPath,
             return
         if token_seq_equal(predictions[0][0], sample_result.ground_truth):
             results["correct_at_1"] += 1
+            out_results[sample_idx] = 1
         if any(token_seq_equal(prediction[0], sample_result.ground_truth) for prediction in predictions[:5]):
             results["correct_at_5"] += 1
+            out_results_5[sample_idx] = 1
         write_snippet(sample_idx, build_csharp_check_function(raw_sample, ' '.join(predictions[0][0])))
 
     test_hyper_overrides['run_id'] = test_hyper_overrides['run_id'] + "-" + str(proc_id)
@@ -80,6 +89,10 @@ def test_on_raw_chunks(model_path: RichPath,
     train_model = model_restore_helper.restore(model_path, is_train=True, hyper_overrides=test_hyper_overrides)
     model = model_restore_helper.restore(model_path, is_train=False, hyper_overrides=test_hyper_overrides)
     num_samples = model.test(test_raw_data_chunks, per_result_callback_fn=per_result_callback, train_model=train_model)
+
+    np.save("acc.npy", out_results)
+    np.save("acc_5.npy", out_results_5)
+
     return num_samples, results["token_perplexities"], results["correct_at_1"], results["correct_at_5"]
 
 
