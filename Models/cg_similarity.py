@@ -46,17 +46,17 @@ edge_match=lambda e1, e2: e1["type"] == e2["type"]
 output = []
 print(len(train_graphs), len(test_graphs))
 
-for graph, elem in train_graphs:
-    if len(graph.nodes) > 500: continue
-    print("Train graph is size:", len(graph.nodes))
+for graph, elem in test_graphs:
+    #if len(graph.nodes) > 500: continue
+    print("Test graph is size:", len(graph.nodes))
 
-    for graph2, elem2 in tqdm(test_graphs):
-        if len(graph2.nodes) > 500: continue
+    for graph2, elem2 in tqdm(train_graphs):
+        #if len(graph2.nodes) > 500: continue
 
         edit_distance = nx.graph_edit_distance(graph, graph2, node_match, edge_match, timeout=10)
         if not edit_distance: continue
 
-        print("(train: %s %s, test: %s %s), %.2f"% (elem["fname"], elem["og_expr"], elem2["fname"], elem2["og_expr"], edit_distance))
+        print("(train: %s %s, test: %s %s), %.2f"% (elem2["fname"], elem2["og_expr"], elem["fname"], elem["og_expr"], edit_distance))
         output.append({
                         "fname1": elem["fname"], 
                         "fname2": elem2["fname"], 
